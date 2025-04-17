@@ -56,7 +56,7 @@ class RekomendasiController extends Controller
             $p->hasil = $p->skor / $totalSkor;
         }
 
-        $produk = $produk->sortByDesc('hasil');
+        $produk = $produk->sortByDesc('hasil')->take(3);
         // dd($produk);
 
         return view('hasil', compact('produk', 'skinTypeName'));
