@@ -14,9 +14,20 @@ class CriteriaSeeder extends Seeder
     public function run(): void
     {
         $criteria = [
-            ['name' => 'harga', 'weight' => 0.3, 'type' => 'cost'],
-            ['name' => 'rating', 'weight' => 0.4, 'type' => 'benefit'],
-            ['name' => 'popularitas', 'weight' => 0.3, 'type' => 'benefit'],
+            ['name' => 'salicylic_acid', 'weight' => 0.2, 'type' => 'facial_wash'],
+            ['name' => 'tea_tree_oil', 'weight' => 0.2, 'type' => 'facial_wash'],
+            ['name' => 'sulfur', 'weight' => 0.2, 'type' => 'facial_wash'],
+            ['name' => 'aha_bha', 'weight' => 0.2, 'type' => 'facial_wash'],
+            ['name' => 'aloe_vera', 'weight' => 0.2, 'type' => 'facial_wash'],
+            ['name' => 'niacinamide', 'weight' => 0.2, 'type' => 'moisturizer'],
+            ['name' => 'centella_asiatica', 'weight' => 0.2, 'type' => 'moisturizer'],
+            ['name' => 'hyaluronic_acid', 'weight' => 0.2, 'type' => 'moisturizer'],
+            ['name' => 'ceramide', 'weight' => 0.2, 'type' => 'moisturizer'],
+            ['name' => 'birch_sap', 'weight' => 0.2, 'type' => 'moisturizer'],
+            ['name' => 'salicylic_acid', 'weight' => 0.25, 'type' => 'sunscreen'],
+            ['name' => 'niacinamide', 'weight' => 0.25, 'type' => 'sunscreen'],
+            ['name' => 'zinc_oxide', 'weight' => 0.25, 'type' => 'sunscreen'],
+            ['name' => 'centella_asiatica', 'weight' => 0.25, 'type' => 'sunscreen'],
         ];
 
         foreach ($criteria as $c) {

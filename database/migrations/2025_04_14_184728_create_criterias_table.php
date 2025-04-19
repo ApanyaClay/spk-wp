@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('criterias', function (Blueprint $table) {
             $table->id();
-            $table->string('name');  // Nama kriteria seperti 'harga', 'kualitas', 'review'
-            $table->decimal('weight', 5, 2);  // Bobot kriteria, contoh: 0.3, 0.4, dll.
-            $table->enum('type', ['cost', 'benefit']);  // Tipe kriteria: 'cost' atau 'benefit'
+            $table->string('name');
+            $table->decimal('weight', 5, 2);
+            $table->enum('type', ['facial_wash', 'moisturizer', 'sunscreen']);
             $table->timestamps();
         });
     }

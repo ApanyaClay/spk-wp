@@ -6,6 +6,7 @@ use App\Models\Criteria;
 use Illuminate\Http\Request;
 use App\Models\Produk;
 use App\Models\SkinType;
+use Illuminate\Support\Str;
 
 class RekomendasiController extends Controller
 {
@@ -17,8 +18,7 @@ class RekomendasiController extends Controller
 
     public function jenisKulit()
     {
-        $skin_types = SkinType::all();
-        return view('jenis-kulit', compact('skin_types'));
+        return view('jenis-kulit');
     }
 
     public function index(Request $request)
@@ -27,57 +27,57 @@ class RekomendasiController extends Controller
 
         $skinType = SkinType::where('name', $skinTypeName)->first();
 
-        $produk = $skinType
+        $produks = $skinType
             ? Produk::where('skin_type_id', $skinType->id)->get()
-            : collect(); // kosong jika tidak ketemu
+            : collect();
 
-        $criterias = Criteria::whereIn('name', ['harga', 'rating', 'popularitas'])->get();
+        foreach ($produks as $produk) {
+            $criterias = Criteria::where('type', $produk->jenis_produk)->get();
+            $score = 1;
+            foreach ($criterias as $criteria) {
+                $field = Str::snake($criteria->name);
 
-        $bobot = [];
-        foreach ($criterias as $c) {
-            $bobot[$c->name] = $c->weight;
+                if (isset($produk->{$field})) {
+                    $value = $produk->{$field};
+                    $value = ($value > 0) ? $value : 0.1;
+                    $score *= pow($value, floatval($criteria->weight));
+                }
+            }
+            $produk->score = $score;
+        }
+        $groupedProduks = $produks->groupBy('jenis_produk');
+
+        // Hitung hasil per produk dalam tiap kelompok
+        $finalGrouped = collect();
+
+        foreach ($groupedProduks as $jenis => $list) {
+            $totalScore = $list->sum('score');
+
+            foreach ($list as $produk) {
+                $produk->hasil = $totalScore > 0 ? $produk->score / $totalScore : 0;
+            }
+
+            // Sort by hasil desc dan simpan kembali
+            $sortedList = $list->sortByDesc('hasil')->values();
+            $finalGrouped[$jenis] = $sortedList;
         }
 
-
-        $jumlahBobot = array_sum($bobot);
-        foreach ($bobot as $k => $v) {
-            $bobot[$k] = $v / $jumlahBobot;
-        }
-
-        foreach ($produk as $p) {
-            $p->skor = pow($p->harga, -$bobot['harga']) *
-                pow($p->rating, $bobot['rating']) *
-                pow($p->popularitas, $bobot['popularitas']);
-        }
-
-        $totalSkor = $produk->sum('skor');
-
-        foreach ($produk as $p) {
-            $p->hasil = $p->skor / $totalSkor;
-        }
-
-        $produk = $produk->sortByDesc('hasil')->take(3);
-        // dd($produk);
-
-        return view('hasil', compact('produk', 'skinTypeName'));
+        return view('hasil', compact('finalGrouped', 'skinTypeName'));
     }
 
     public function tampilkanjenis($tipe)
     {
-        // Ambil data jenis kulit berdasarkan tipe dari database
         $skinType = SkinType::where('name', $tipe)->first();
 
-        // Jika tidak ditemukan data untuk tipe ini, tampilkan 404
         if (!$skinType) {
-            abort(404); // Jika tipe tidak dikenali
+            abort(404);
         }
 
-        // Ambil data untuk dikirim ke view
         $data = [
-            'judul' => ucfirst($tipe), // Judul berdasarkan tipe (misal: 'Kulit Berminyak')
+            'judul' => ucfirst($tipe),
             'konten' => $skinType->konten,
-            'bahan' => json_decode($skinType->bahan), // Mengubah json string kembali ke array
-            'tips' => json_decode($skinType->tips) // Mengubah json string kembali ke array
+            'bahan' => json_decode($skinType->bahan),
+            'tips' => json_decode($skinType->tips)
         ];
 
         return view('rekomendasi', compact('data', 'tipe'));
